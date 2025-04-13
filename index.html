@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="計時器">
+    <link href="./assets/img/favicon.png" rel="icon">
+    <title>Enlighten簡易計時器-time</title>
+    <meta name="author" content="盧靜宜">
+    <meta name="email" content="eva717873@gmail.com">
+
+    <link rel="stylesheet" href="./bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/vendor/bootstrap-icons/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+        }
+
+        #time-container {
+            /* 包裹數字和背景圖片的容器 */
+            position: relative;
+            /* 建立定位基準點 */
+            display: inline-block;
+            /* 讓容器根據內容調整大小 */
+        }
+
+        #time-display {
+            font-size: 24rem;
+            font-weight: 800;
+            color: white;
+            word-break: break-word;
+            position: relative;
+            /* 讓文字疊在背景圖片之上 */
+            z-index: 1;
+            /* 確保文字在圖片上方 */
+        }
+
+        #smile-background {
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            width: 28vw;
+            /* 寬度為視窗寬度的 30% */
+            height: 30vw;
+            /* 高度也設定為 30vw 以保持方形 (如果您的圖片是方形的) */
+            background-image: url('./assets/img/smile.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
+            opacity: 0.35;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        #time-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #time-display {
+            /* ... 其他樣式 ... */
+            position: relative;
+            z-index: 1;
+        }
+
+        .finished {
+            color: #4682B4 !important;
+            /* color: #4B0091 !important; */
+        }
+
+        .btn-lg-custom {
+            font-size: 1.5rem;
+            padding: 15px 20px;
+        }
+
+        .timer-controls button {
+            min-width: 100px;
+            margin-bottom: 10px;
+        }
+
+        input.form-control,
+        select.form-select {
+            background-color: #6C6C6C;
+            color: #E0E0E0;
+            border: none;
+        }
+
+        input.form-control::placeholder {
+            color: #E0E0E0;
+        }
+
+        /* 響應式調整字體大小 */
+        @media (max-width: 1200px) {
+            #time-display {
+                font-size: 12rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            #time-display {
+                font-size: 10rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #time-display {
+                font-size: 8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #time-display {
+                font-size: 6rem;
+            }
+
+            .btn-lg-custom {
+                font-size: 1.2rem;
+                padding: 12px 16px;
+            }
+
+            .timer-controls .col-md-2 {
+                width: 100%;
+            }
+
+            .preset-btn {
+                font-size: 1rem;
+
+            }
+
+            .form-control,
+            .form-select {
+                font-size: 0.9rem;
+            }
+        }
+
+        .control-btn {
+            width: 80px;
+            height: 80px;
+            border: 2px solid white;
+            border-radius: 50%;
+            font-size: 2rem;
+            color: white;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: white;
+            color: #111;
+        }
+
+        /* 新增樣式：勾選笑臉透明度控制 */
+        .opacity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 20px;
+            /* 調整與右方元素的間距 */
+        }
+
+        .opacity-control label {
+            font-size: 1rem;
+        }
+
+        .opacity-control input[type="range"] {
+            width: 100px;
+        }
+
+
+        .control-btn.active {
+            background-color: #ADD8E6;
+            /* 淡藍色反白 */
+            color: #111;
+            /* 反白時文字顏色 */
+            border-color: #ADD8E6;
+            /* 反白時邊框顏色 */
+        }
+
+        /* 說明欄樣式 */
+        .help-flex {
+            position: absolute;
+            bottom: 32px;
+            right: 32px;
+            background-color: rgba(45, 45, 45, 0.8);
+            color: rgb(202, 202, 202);
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            line-height: 1.5;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            /* 垂直排列 */
+            gap: 8px;
+            /* 項目之間的間距 */
+        }
+
+        .help-item {
+            display: flex;
+            justify-content: space-between;
+            /* 快捷鍵和功能之間留白 */
+        }
+
+        .key {
+            min-width: 64px;
+            /* 確保快捷鍵文字有一定寬度 */
+        }
+
+        .function {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body class="text-center py-4">
+
+    <div class="container mb-3">
+        <div class="row align-items-end justify-content-center">
+            <div class="col-4 col-md-1">
+                <input type="number" id="custom-min" class="form-control" placeholder="分鐘">
+            </div>
+            <div class="col-4 col-md-1">
+                <input type="number" id="custom-sec" class="form-control" placeholder="秒數">
+            </div>
+            <div class="col-auto">
+                <select id="count-direction" class="form-select">
+                    <option value="down">倒數</option>
+                    <option value="up">正數</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-outline-light w-100" onclick="setCustomTimer()">√ 設定</button>
+            </div>
+            <div class="col-auto opacity-control">
+                <label for="smile-opacity">笑臉透明度:</label>
+                <input type="range" id="smile-opacity" min="0" max="100" value="45">
+                <span id="opacity-value">45%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-3">
+                <button class="btn btn-outline-info rounded-pill w-100 preset-btn"
+                    onclick="setTimer(23, 30, true, this)">
+                    快速：倒數 23:30
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-info rounded-pill w-100 preset-btn"
+                    onclick="setTimer(30, 0, false, this)">快速：正數
+                    30:00</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container mb-3">
+        <div id="time-container">
+            <div id="time-display">00:00</div>
+            <div id="smile-background"></div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+            <button class="control-btn" onclick="pauseTimer()" title="暫停">
+                <i class="bi bi-pause-fill"></i>
+            </button>
+            <button class="control-btn" onclick="startTimer()" title="播放">
+                <i class="bi bi-play-fill"></i>
+            </button>
+            <button class="control-btn" onclick="resetTimer()" title="停止">
+                <i class="bi bi-stop-fill"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="help-flex">
+
+        <div class="help-item">
+            <span class="key">Esc</span>
+            <span class="function">停止 / 重設</span>
+        </div>
+
+        <div class="help-item">
+            <span class="key">F11</span>
+            <span class="function">全螢幕切換</span>
+        </div>
+    </div>
+
+    <script>
+        let timer = null;
+        let totalSeconds = 0;
+        let countingUp = false;
+        let currentSeconds = 0;
+        let paused = false;
+        let overtime = false;
+        let activeButton = null; // 用來追蹤目前選中的按鈕
+        const smileBackground = document.getElementById('smile-background');
+        const opacityControl = document.getElementById('smile-opacity');
+        const opacityValueDisplay = document.getElementById('opacity-value');
+
+        function setCustomTimer() {
+            const min = parseInt(document.getElementById("custom-min").value) || 0;
+            const sec = parseInt(document.getElementById("custom-sec").value) || 0;
+            const direction = document.getElementById("count-direction").value;
+            setTimer(min, sec, direction === "down");
+        }
+
+        function startTimer() {
+            if (timer || paused) {
+                paused = false;
+                return;
+            }
+
+            document.getElementById("time-display").classList.remove("finished");
+
+            timer = setInterval(() => {
+                if (countingUp) {
+                    currentSeconds++;
+                    if (currentSeconds >= totalSeconds) {
+                        document.getElementById("time-display").classList.add("finished");
+                    }
+                } else {
+                    currentSeconds--;
+
+                    if (currentSeconds < 0) {
+                        overtime = true;
+                        document.getElementById("time-display").classList.add("finished");
+                    }
+                }
+
+                updateDisplay();
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+                paused = true;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timer = null;
+            currentSeconds = countingUp ? 0 : totalSeconds;
+            paused = false;
+            overtime = false;
+            updateDisplay();
+            resetDisplay();
+            resetActiveButton(); // 重置選中按鈕的樣式
+        }
+
+        function updateDisplay() {
+            let displayText = "";
+            let absSeconds = Math.abs(currentSeconds);
+            const minutes = Math.floor(absSeconds / 60).toString().padStart(2, '0');
+            const seconds = (absSeconds % 60).toString().padStart(2, '0');
+
+            if (!countingUp && currentSeconds < 0) {
+                displayText = `-${minutes}:${seconds}`;
+            } else {
+                displayText = `${minutes}:${seconds}`;
+            }
+
+            document.getElementById("time-display").textContent = displayText;
+        }
+
+        function resetDisplay() {
+            document.getElementById("time-display").classList.remove("finished");
+        }
+
+        // 預設為倒數 23:30，但不觸發按鈕樣式
+        setTimer(23, 30, true, null); // 傳入 null 表示不更新按鈕樣式
+
+        function setTimer(min, sec, isCountdown = true, btn = null) {
+            clearInterval(timer);
+            countingUp = !isCountdown;
+            totalSeconds = min * 60 + sec;
+            currentSeconds = isCountdown ? totalSeconds : 0;
+            paused = false;
+            overtime = false;
+            updateDisplay();
+            resetDisplay();
+
+            // 移除之前選中按鈕的樣式
+            resetActiveButton();
+
+            // 如果有傳入按鈕物件，則更新該按鈕的樣式並記錄
+            if (btn) {
+                btn.classList.remove('btn-outline-info');
+                btn.classList.add('btn-info');         // 加上藍底白字樣式
+                activeButton = btn; // 記錄目前選中的按鈕
+            }
+        }
+
+        function resetActiveButton() {
+            if (activeButton) {
+                activeButton.classList.remove('btn-info');
+                activeButton.classList.add('btn-outline-info');
+                activeButton = null;
+            }
+        }
+
+        // 鍵盤快捷鍵功能區
+        document.addEventListener('keydown', function (e) {
+            if (e.code === 'Space') {
+                e.preventDefault(); // 阻止空白鍵觸發頁面滾動
+                if (timer) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            }
+
+            if (e.code === 'Escape') {
+                resetTimer();
+            }
+
+            if (e.code === 'F5') {
+                location.reload(); // 重新載入整個畫面
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            // 全螢幕切換（僅瀏覽器支援）
+            if (e.code === 'F11') {
+                e.preventDefault(); // 阻止瀏覽器預設 F11 行為
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // 監聽透明度滑桿的變化
+        opacityControl.addEventListener('input', function () {
+            const opacityValue = this.value / 100;
+            smileBackground.style.opacity = opacityValue;
+            opacityValueDisplay.textContent = `${this.value}%`;
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>

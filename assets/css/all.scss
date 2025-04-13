@@ -1,0 +1,73 @@
+// 自訂 Bootstrap 變數
+$primary: #965200;
+$primary-dark: #5b391b;
+$Primary-Light: #F4EFE9;
+$secondary: #7C786C;
+$Secondary-Dark: #5B5A52;
+$Secondary-Light: #ABB5BE;
+$success: #798D52;
+$danger: #880F00;
+$info: #2596A5;
+$warning: #E2B76D;
+$light: #FAFAF8;
+$dark: #292421;
+
+//長寬高
+.w-95 {
+    width: 95% !important;
+}
+
+$card-height: 100%;
+
+// 擴充 Bootstrap Padding
+.p-6 {
+    padding: 4rem !important; // 4rem ≈ 64px (可根據需求調整)
+}
+
+.mt-6 {
+    margin-top: 5rem;
+}
+
+// 導覽列深色下拉 
+.dropdown-menu[data-bs-theme="dark"] {
+    background-color: var(--bs-dark); // 深色背景
+    border: 1px solid var(--bs-secondary); // 增加邊框讓層次更明顯
+
+    .dropdown-item {
+        color: var(--bs-light); // 文字變淺色，提高對比度
+
+        &:hover,
+        &:focus {
+            background-color: var(--bs-secondary); // 滑鼠懸停時的背景
+            color: var(--bs-dark); // 讓文字仍然清晰可見
+        }
+    }
+}
+
+
+.navbar-nav .nav-item+.nav-item {
+    position: relative; // 確保偽元素正確定位
+}
+
+// 導覽列項目的分隔線
+.navbar-nav .nav-item+.nav-item::before {
+    content: ""; // 必須要有 content 才會顯示
+    position: absolute;
+    left: 0;
+    top: 15%; // 讓線條稍微下降
+    height: 70%; // 設定線段長度為 80%
+    width: 2px; // 線條寬度
+    background-color: rgba(255, 255, 255, 0.5); // 白色半透明
+}
+
+/* 修改下拉項目點擊後的背景顏色為 primary */
+.dropdown-menu[data-bs-theme="dark"] .dropdown-item:active {
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+    /* 使文字顏色適應 */
+}
+
+
+
+// 引入 Bootstrap SCSS
+@import "../../bootstrap/scss/bootstrap.scss"
